@@ -103,4 +103,8 @@ $ cargo watch -x run
 
 ## Add WebSockets to Project
 
+- [Websockets](https://actix.rs/docs/websockets/)
 
+A simple websocket echo server example is available in the [examples directory](https://github.com/actix/examples/tree/master/websockets/websocket).
+
+An example chat server with the ability to chat over a websocket or TCP connection is available in [websocket-chat directory](https://github.com/actix/examples/tree/master/websockets/chat)
