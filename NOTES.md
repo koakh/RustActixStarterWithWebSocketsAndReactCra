@@ -101,10 +101,87 @@ $ ls -lah ./target/release/rust-react-starter
 $ cargo watch -x run
 ```
 
-## Add WebSockets to Project
+## Add WebSockets to Server Project
 
 - [Websockets](https://actix.rs/docs/websockets/)
 
 A simple websocket echo server example is available in the [examples directory](https://github.com/actix/examples/tree/master/websockets/websocket).
 
 An example chat server with the ability to chat over a websocket or TCP connection is available in [websocket-chat directory](https://github.com/actix/examples/tree/master/websockets/chat)
+
+### Test Actix Sample
+
+- [actix/examples](https://github.com/actix/examples/tree/master/websockets/websocket)
+
+#### Server
+
+```shell
+$ cd examples/websocket
+$ cargo run --bin websocket-server
+# Started http server: 127.0.0.1:8080
+WS: Ok(Ping(b""))
+WS: Ok(Ping(b""))
+```
+
+#### Web Client
+
+- [http://localhost:8080/](http://localhost:8080/)
+
+#### Rust client
+
+```shell
+$ cd examples/websocket
+$ cargo run --bin websocket-client
+ClientResponse HTTP/1.1 101 Switching Protocols
+  headers:
+    "date": "Wed, 19 May 2021 15:17:56 GMT"
+    "upgrade": "websocket"
+    "connection": "upgrade"
+    "sec-websocket-accept": "UETwkO3imj9WAiFC/thWr1Tghl4="
+
+Connected
+```
+
+### Add WebSockets to Server Project
+
+- [websocket](https://www.npmjs.com/package/websocket)
+
+1. copy example `main.rs`  to main project `main.rs` and start from that point
+2. copy static folder from example
+3. add cargo deps
+
+```toml
+[dependencies]
+log = "0.4.0"
+env_logger = "0.8.3"
+actix = "0.10"
+actix-web = "3"
+actix-web-actors = "3"
+# used in websocket sample only
+actix-files = "0.5.0"
+```
+
+```shell
+$ cargo run
+```
+
+test Web Client with [http://localhost:8080/](http://localhost:8080/)
+
+
+### Add WebSockets to React Project
+
+copy example `main.rs`  to main project `main.rs` and start from that point
+
+- [actix/examples](https://github.com/actix/examples/tree/master/websockets/websocket)
+- [WebSockets tutorial: How to go real-time with Node and React - LogRocket Blog](https://blog.logrocket.com/websockets-tutorial-how-to-go-real-time-with-node-and-react-8e4693fbf843/)
+- [websocket](https://www.npmjs.com/package/websocket)
+
+```shell
+$ cd app/src
+$ npm i websocket
+$ npm i --save-dev @types/websocket
+```
+
+import { w3cwebsocket as W3CWebSocket } from "websocket";
+
+use example **Client Example using the W3C WebSocket API** from [link](https://www.npmjs.com/package/websocket)
