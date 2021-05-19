@@ -8,7 +8,9 @@ include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 async fn main() -> std::io::Result<()> {
   HttpServer::new(move || {
     let generated = generate();
-    App::new().service(actix_web_static_files::ResourceFiles::new("/", generated))
+    App::new().service(
+      actix_web_static_files::ResourceFiles::new("/", generated).resolve_not_found_to_root(),
+    )
   })
   .bind("127.0.0.1:8080")?
   .run()

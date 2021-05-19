@@ -14,7 +14,15 @@ Hello, world
 $ cargo install systemfd cargo-watch
 ```
 
-## Add actix-web-static-files` dependencies
+## React Starter
+
+## Links
+
+- [kilork/actix-web-static-files](https://github.com/kilork/actix-web-static-files)
+- [actix_web_static_files - Rust](https://docs.rs/actix-web-static-files/3.0.5/actix_web_static_files/index.html?search=#use-case-3-packagejson---webpack-usage)
+- [kilork/actix-web-static-files-example-angular-router](https://github.com/kilork/actix-web-static-files-example-angular-router)
+
+### Add actix-web-static-files` dependencies
 
 - [actix_web_static_files - Rust](https://docs.rs/actix-web-static-files/3.0.5/actix_web_static_files/index.html#actix-web-static-files-as-resources-support)
 
@@ -36,15 +44,15 @@ actix-web-static-files = "3.0"
 add `build.rs`
 
 ```rust
-use actix_web_static_files::{resource_dir, NpmBuild};
-
 // Use-case #1: Static resources folder
+// use actix_web_static_files::resource_dir;
 // fn main() {
 //   // resource_dir("./static").build().unwrap();
 //   resource_dir("./app/build").build().unwrap();
 // }
 
 // Use-case #3: package.json - WebPack usage
+use actix_web_static_files::NpmBuild;
 fn main() {
   NpmBuild::new("./app")
     .install()
@@ -58,13 +66,19 @@ fn main() {
 }
 ```
 
-## Add CRA App
+### Add CRA App Javascript
 
 ```shell
 $ npx create-react-app app
 ```
 
-## Run and Test Embbeded Cra
+### Add CRA App TypeScript
+
+```shell
+$ npx create-react-app --template cra-template-typescript app
+```
+
+### Run and Test Embbeded Cra
 
 ```shell
 $ cargo build
@@ -75,4 +89,18 @@ $ ./target/debug/rust-react-starter
 # run binary release
 $ cargo build --release
 $ ./target/release/rust-react-starter
+$ ls -lah ./target/release/rust-react-starter 
+-rwxr-xr-x 2 mario users 8,4M mai 19 12:16 ./target/release/rust-react-starter
 ```
+
+### using AutoreLoad
+
+- [Auto-Reloading](https://actix.rs/docs/autoreload/)
+
+```shell
+$ cargo watch -x run
+```
+
+## Add WebSockets to Project
+
+
