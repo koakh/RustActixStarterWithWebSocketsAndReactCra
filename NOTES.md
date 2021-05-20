@@ -185,3 +185,11 @@ $ npm i --save-dev @types/websocket
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 use example **Client Example using the W3C WebSocket API** from [link](https://www.npmjs.com/package/websocket)
+
+
+
+
+
+
+https://docs.rs/actix_send_websocket/0.1.0/actix_send_websocket/
+https://crates.io/crates/actix_send_websocket
