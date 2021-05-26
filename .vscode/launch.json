@@ -14,15 +14,15 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'emply'",
+      "name": "Debug executable 'rust-react-starter'",
       "cargo": {
         "args": [
           "build",
-          "--bin=emply",
-          "--package=emply"
+          "--bin=rust-react-starter",
+          "--package=rust-react-starter"
         ],
         "filter": {
-          "name": "emply",
+          "name": "rust-react-starter",
           "kind": "bin"
         }
       },
@@ -32,16 +32,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'emply'",
+      "name": "Debug unit tests in executable 'rust-react-starter'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=emply",
-          "--package=emply"
+          "--bin=rust-react-starter",
+          "--package=rust-react-starter"
         ],
         "filter": {
-          "name": "emply",
+          "name": "rust-react-starter",
           "kind": "bin"
         }
       },

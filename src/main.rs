@@ -4,7 +4,7 @@ use actix_web_actors::ws;
 use std::time::{Duration, Instant};
 use actix_web_static_files;
 use log::debug;
-use starter::constants::APP_NAME;
+use rust_react_starter::constants::APP_NAME;
 // use starter::websockets::index;
 // used in base actix server static files
 // use actix_files as fs;

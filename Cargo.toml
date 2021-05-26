@@ -1,5 +1,5 @@
 [package]
-name = "starter"
+name = "rust-react-starter"
 version = "0.1.0"
 authors = ["Mario Monteiro <marioammonteiro@gmail.com>"]
 edition = "2018"
@@ -20,6 +20,12 @@ actix-web-actors = "3"
 actix-web-static-files = "3.0"
 # used in websocket sample only
 actix-files = "0.5.0"
+# serde
+serde = "1.0.126"
+serde_json = "1.0.64"
+serde_derive = "1.0.126"
+# serde = { version = "1.0.124", features = ["derive", "rc"] }
+# serde_json = "1.0.64"
 
 [build-dependencies]
 actix-web-static-files = "3.0"
