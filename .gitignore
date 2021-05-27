@@ -1,3 +1,4 @@
-/target
-app/build
+.bak
+/target/
+app/build/
 app/node_modules/
