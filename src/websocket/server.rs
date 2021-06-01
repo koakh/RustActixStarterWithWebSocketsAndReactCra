@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use actix::prelude::{Actor, Context, Handler, Message as ActixMessage, Recipient};
 use serde::{Deserialize, Serialize};
 use serde_json::{error::Result as SerdeResult, to_string, Value};
+use log::debug;
 
 #[derive(ActixMessage)]
 #[rtype(result = "()")]
@@ -43,7 +44,9 @@ impl Server {
             Err(err) => {
               format!("Error sending client message: {:?}", err);
             }
-            _ => {}
+            _ => {
+              debug!("no recipients found!");
+            }
           }
         }
       }
@@ -69,6 +72,7 @@ impl Handler<Connect> for Server {
   type Result = ();
 
   fn handle(&mut self, msg: Connect, _: &mut Context<Self>) {
+    debug!("handle connection: id: {}, addr: {:?}", msg.id.clone(), msg.addr);
     self.sessions.insert(msg.id.clone(), msg.addr);
   }
 }

@@ -1,8 +1,11 @@
+#[macro_use]
+extern crate log;
+
 use actix::prelude::*;
 use actix::Addr;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use actix_web_static_files;
-use actix_rt;
+// use actix_rt;
 // use actix_web_actors::ws;
 
 use dotenv::dotenv;
@@ -13,10 +16,11 @@ use serde_json::json;
 mod constants;
 mod dto;
 mod websocket;
+mod errors;
 
 use constants::APP_NAME;
 use dto::{PostInput, PostResponse};
-use websocket::{ws_index, Server as WebServer};
+use websocket::{ws_index, Server as WebServer, MessageToClient};
 
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 
@@ -115,17 +119,20 @@ async fn echo(
   // The type of `j` is `serde_json::Value`
   let json = json!({ "fingerprint": "0xF9BA143B95FF6D82" });
   // let wsm: WebSocketMessage = serde_json::from_value(json).unwrap();
-  // let message_to_client = MessageToClient::new("webSocketMessage", json);
-  // websocket_srv.do_send(message_to_client);
+  let message_to_client = MessageToClient::new("webSocketMessage", json);
+  websocket_srv.do_send(message_to_client);
   HttpResponse::Ok().json(PostResponse {
     message: msg.message.clone(),
   })
 }
 
 // TODO
-// #[actix_web::main]
+#[actix_web::main]
 // TODO required actix-rt = "2.1.0"
-#[actix_rt::main]
+// #[actix_rt::main]
+// with actix_rt::main gives
+// thread 'main' panicked at 'System is not running', /home/mario/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-rt-1.1.1/src/system.rs:78:21
+// note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 async fn main() -> std::io::Result<()> {
   dotenv().ok();
   std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info");

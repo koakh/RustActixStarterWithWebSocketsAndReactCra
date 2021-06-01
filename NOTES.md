@@ -198,3 +198,9 @@ https://crates.io/crates/actix_send_websocket
 
 curl -X GET http://127.0.0.1:8080/hello
 curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/echo | jq
+
+
+
+the trick is adding src/errors.rs, after this error is gone :(
+9 |     .service(web::resource("/ws/").route(web::get().to(websocket::ws_index)))
+  |                                                        ^^^^^^^^^^^^^^^^^^^ the trait `Factory<_, _, _>` is not implemented for `fn(HttpRequest, actix_web::web::Payload, actix_web::web::Data<Addr<server::Server>>) -> impl std::future::Future {ws_index}`

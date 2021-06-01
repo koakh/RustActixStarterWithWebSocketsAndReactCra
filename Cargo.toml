@@ -28,6 +28,9 @@ serde_derive = "1.0.126"
 # serde = { version = "1.0.124", features = ["derive", "rc"] }
 # serde_json = "1.0.64"
 uuid = { version = "0.5", features = ["serde", "v4"] }
+# futures = "0.3.5"
+# futures-util = "0.3.5"
+derive_more = "0.99.9"
 
 [build-dependencies]
 actix-web-static-files = "3.0"

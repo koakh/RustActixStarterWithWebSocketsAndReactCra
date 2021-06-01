@@ -1,7 +1,7 @@
+#![allow(unused_imports)]
 use std::time::{Duration, Instant};
-
+use log::{debug, error, info, trace, warn, LevelFilter, SetLoggerError};
 use uuid::Uuid;
-
 use actix::{
   fut,
   prelude::{Actor, Addr, Handler, StreamHandler},
@@ -10,7 +10,7 @@ use actix::{
 use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
-use errors::Error;
+use crate::errors::Error;
 
 mod server;
 pub use self::server::*;
@@ -123,26 +123,3 @@ pub async fn ws_index(
 
   Ok(res)
 }
-
-// pub async fn ws_index(
-//   req: HttpRequest,
-//   stream: web::Payload,
-//   server_addr: web::Data<Addr<Server>>,
-// // ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
-// ) -> HttpResponse {  
-// // ) -> () {    
-//   let res = ws::start(
-//     WebSocketSession::new(server_addr.get_ref().clone()),
-//     &req,
-//     stream,
-//   // )?;
-//   );
-
-//   // match res {
-//   //   Ok(_) => Ok(HttpResponse::Ok().json(json!{ {"success":true}})),
-//   //   Err(e) => HttpResponse::InternalServerError().json(ErrorMessage { message: e }),
-//   // }
-
-//   // Ok(res)
-//   // HttpResponse::Ok().body("done")
-// }

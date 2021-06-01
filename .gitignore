@@ -1,4 +1,5 @@
 .bak
+.*/
 /target/
 app/build/
 appjs/build/

@@ -1501,6 +1501,7 @@ dependencies = [
  "actix-web",
  "actix-web-actors",
  "actix-web-static-files",
+ "derive_more",
  "dotenv",
  "env_logger",
  "log",
