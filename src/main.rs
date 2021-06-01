@@ -119,8 +119,16 @@ async fn echo(
   // The type of `j` is `serde_json::Value`
   let json = json!({ "fingerprint": "0xF9BA143B95FF6D82" });
   // let wsm: WebSocketMessage = serde_json::from_value(json).unwrap();
-  let message_to_client = MessageToClient::new("webSocketMessage", json);
-  websocket_srv.do_send(message_to_client);
+  let message_to_client = MessageToClient::new("newquestion", json);
+  // websocket_srv.do_send(message_to_client);
+  match websocket_srv.send(message_to_client).await {
+    Ok(ok) => {
+      debug!("{:?}", ok);
+    },
+    Err(e) => {
+      debug!("{:?}", e);
+    }
+  };
   HttpResponse::Ok().json(PostResponse {
     message: msg.message.clone(),
   })
@@ -135,7 +143,7 @@ async fn echo(
 // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 async fn main() -> std::io::Result<()> {
   dotenv().ok();
-  std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info");
+  std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info,debug");
   env_logger::init();
   debug!("starting app {}", APP_NAME);
   HttpServer::new(|| {
