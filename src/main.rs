@@ -143,11 +143,12 @@ async fn echo(
 // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 async fn main() -> std::io::Result<()> {
   dotenv().ok();
-  std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info,debug");
+  std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info,debug,warn,error");
   env_logger::init();
   debug!("starting app {}", APP_NAME);
-  HttpServer::new(|| {
-    let ws_server = WebServer::new().start();
+  // the trick for not lost connections sessions, is create ws_server outside of HttpServer::new, and use `move ||`
+  let ws_server = WebServer::new().start();
+  HttpServer::new(move || {
     let generated = generate();
     App::new()
       .data(ws_server.clone())

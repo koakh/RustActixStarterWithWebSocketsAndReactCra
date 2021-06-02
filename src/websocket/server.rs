@@ -44,9 +44,7 @@ impl Server {
             Err(err) => {
               format!("Error sending client message: {:?}", err);
             }
-            _ => {
-              debug!("no recipients found!");
-            }
+            _ => {}
           }
         }
       }
@@ -72,8 +70,8 @@ impl Handler<Connect> for Server {
   type Result = ();
 
   fn handle(&mut self, msg: Connect, _: &mut Context<Self>) {
-    debug!("handle connection: id: {}, addr: {:?}", msg.id.clone(), msg.addr);
     self.sessions.insert(msg.id.clone(), msg.addr);
+    debug!("handle connection: id: {}, sessionsLen: {}", msg.id.clone(), self.sessions.len());
   }
 }
 
@@ -87,6 +85,7 @@ impl Handler<Disconnect> for Server {
   type Result = ();
 
   fn handle(&mut self, msg: Disconnect, _: &mut Context<Self>) {
+    debug!("handle disconnection: id: {}", msg.id.clone());
     self.sessions.remove(&msg.id);
   }
 }
@@ -95,6 +94,7 @@ impl Handler<MessageToClient> for Server {
   type Result = ();
 
   fn handle(&mut self, msg: MessageToClient, _: &mut Context<Self>) -> Self::Result {
+    debug!("handle messageToClient: sessionsLen: {}", self.sessions.len());
     self.send_message(to_string(&msg));
   }
 }

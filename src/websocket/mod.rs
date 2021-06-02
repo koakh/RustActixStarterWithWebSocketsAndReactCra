@@ -40,7 +40,6 @@ impl WebSocketSession {
         act.server_addr.do_send(Disconnect { id: act.id.clone() });
         // stop actor
         ctx.stop();
-
         // don't try to send a ping
         return;
       }
@@ -92,6 +91,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession 
       Ok(ws::Message::Pong(_)) => {
         self.hb = Instant::now();
       }
+      Ok(ws::Message::Text(text)) => ctx.text(text),
       Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
       Ok(ws::Message::Close(reason)) => {
         info!("closed ws session");
