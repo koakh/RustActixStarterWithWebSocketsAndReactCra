@@ -142,10 +142,6 @@ ClientResponse HTTP/1.1 101 Switching Protocols
 Connected
 ```
 
-## Add WebSockets to Server Project II ?
-
-- [websocket](https://www.npmjs.com/package/websocket)
-
 1. copy example `main.rs`  to main project `main.rs` and start from that point
 2. copy static folder from example
 3. add cargo deps
@@ -185,23 +181,30 @@ import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 use example **Client Example using the W3C WebSocket API** from [link](https://www.npmjs.com/package/websocket)
 
+## Building a REST and Web Socket API with Actix and Rust / Best Tutorial with `.data(server.clone())
 
+> follow Note Rust - **Actix WebSockets.md**
 
+### Test WebSocket and use HotRealod with React Project
 
+```shell
+# terminal #1
+$ make run_server
+# terminal #2: use other outside frontend at port 8081 to use hor reload, this way we don't use embbedded version
+$ make run_client
+# minimal request
+$ curl -X GET http://127.0.0.1:8080/hello
+# open some frontend pages at http://127.0.0.1:8080|8081 and test websockets
+$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/echo | jq
+```
 
+## Problems
 
-https://docs.rs/actix_send_websocket/0.1.0/actix_send_websocket/
-https://crates.io/crates/actix_send_websocket
+### Fix: the trait `Factory<_, _, _>` is not implemented for `fn(HttpRequest, actix_web::web::Payload, actix_web::web::Data<Addr<server::Server>>)
 
-
-
-
-curl -X GET http://127.0.0.1:8080/hello
-# test websockets
-curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/echo | jq
-
-
-
-the trick is adding src/errors.rs, after this error is gone :(
+> the trick is adding src/errors.rs, after this error is gone :(
+ 
+```shell
 9 |     .service(web::resource("/ws/").route(web::get().to(websocket::ws_index)))
   |                                                        ^^^^^^^^^^^^^^^^^^^ the trait `Factory<_, _, _>` is not implemented for `fn(HttpRequest, actix_web::web::Payload, actix_web::web::Data<Addr<server::Server>>) -> impl std::future::Future {ws_index}`
+```
