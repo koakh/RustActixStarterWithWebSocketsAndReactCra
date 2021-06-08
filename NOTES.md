@@ -142,7 +142,7 @@ ClientResponse HTTP/1.1 101 Switching Protocols
 Connected
 ```
 
-## Add WebSockets to Server Project
+## Add WebSockets to Server Project II ?
 
 - [websocket](https://www.npmjs.com/package/websocket)
 
@@ -197,6 +197,7 @@ https://crates.io/crates/actix_send_websocket
 
 
 curl -X GET http://127.0.0.1:8080/hello
+# test websockets
 curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/echo | jq
 
 

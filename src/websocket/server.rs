@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use actix::prelude::{Actor, Context, Handler, Message as ActixMessage, Recipient};
+use log::debug;
 use serde::{Deserialize, Serialize};
 use serde_json::{error::Result as SerdeResult, to_string, Value};
-use log::debug;
 
 #[derive(ActixMessage)]
 #[rtype(result = "()")]
@@ -71,7 +71,11 @@ impl Handler<Connect> for Server {
 
   fn handle(&mut self, msg: Connect, _: &mut Context<Self>) {
     self.sessions.insert(msg.id.clone(), msg.addr);
-    debug!("handle connection: id: {}, sessionsLen: {}", msg.id.clone(), self.sessions.len());
+    debug!(
+      "handle connection: id: {}, sessionsLen: {}",
+      msg.id.clone(),
+      self.sessions.len()
+    );
   }
 }
 
@@ -94,7 +98,10 @@ impl Handler<MessageToClient> for Server {
   type Result = ();
 
   fn handle(&mut self, msg: MessageToClient, _: &mut Context<Self>) -> Self::Result {
-    debug!("handle messageToClient: sessionsLen: {}", self.sessions.len());
+    debug!(
+      "handle messageToClient: sessionsLen: {}",
+      self.sessions.len()
+    );
     self.send_message(to_string(&msg));
   }
 }

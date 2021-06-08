@@ -10,7 +10,9 @@ use actix::{
 use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
-use crate::errors::Error;
+// required to prevent 
+// the trait `Factory<_, _, _>` is not implemented for `fn(HttpRequest, actix_web::web::Payload, actix_web::web::Data<Addr<server::Server>>) -> impl std::future::Future {ws_index}`
+use crate::app::Error;
 
 mod server;
 pub use self::server::*;
