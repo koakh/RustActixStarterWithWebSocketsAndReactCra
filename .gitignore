@@ -1,6 +1,5 @@
 .bak
-.*/
-/target/
+target/
 app/build/
 appjs/build/
 app/node_modules/
