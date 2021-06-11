@@ -1,12 +1,30 @@
 # NOTES
 
-- [How to create an API with Rust and Postgres - LogRocket Blog](https://blog.logrocket.com/create-a-backend-api-with-rust-and-postgres/)
+- [NOTES](#notes)
+  - [Links](#links)
+  - [install cargo-watch](#install-cargo-watch)
+  - [Bootstrap](#bootstrap)
+    - [Add actix-web-static-files` dependencies](#add-actix-web-static-files-dependencies)
+    - [Add CRA App Javascript](#add-cra-app-javascript)
+    - [Add CRA App TypeScript](#add-cra-app-typescript)
+    - [Run and Test Embbeded Cra](#run-and-test-embbeded-cra)
+    - [using AutoreLoad](#using-autoreload)
+  - [Add WebSockets to Server Project](#add-websockets-to-server-project)
+    - [Test Actix Sample](#test-actix-sample)
+      - [Server](#server)
+      - [Web Client](#web-client)
+      - [Rust client](#rust-client)
+    - [Add WebSockets to React Project](#add-websockets-to-react-project)
+  - [Building a REST and Web Socket API with Actix and Rust / Best Tutorial with `.data(server.clone())](#building-a-rest-and-web-socket-api-with-actix-and-rust--best-tutorial-with-dataserverclone)
+    - [Test WebSocket and use HotRealod with React Project](#test-websocket-and-use-hotrealod-with-react-project)
+  - [Problems](#problems)
+    - [Fix: the trait `Factory<_, _, _>` is not implemented for `fn(HttpRequest, actix_web::web::Payload, actix_web::web::Data<Addr<server::Server>>)](#fix-the-trait-factory_-_-_-is-not-implemented-for-fnhttprequest-actix_webwebpayload-actix_webwebdataaddrserverserver)
+  - [the trait bound `WebSocketSession: actix::actor::Actor` is not satisfied](#the-trait-bound-websocketsession-actixactoractor-is-not-satisfied)
+  - [Add WebSockets to Other Actix Web project like c3-updater](#add-websockets-to-other-actix-web-project-like-c3-updater)
 
-```shell
-$ cargo run
-$ curl -v http://localhost:8080/static/hello
-Hello, world
-```
+## Links
+
+- [How to create an API with Rust and Postgres - LogRocket Blog](https://blog.logrocket.com/create-a-backend-api-with-rust-and-postgres/)
 
 ## install cargo-watch
 
@@ -14,9 +32,7 @@ Hello, world
 $ cargo install systemfd cargo-watch
 ```
 
-## React Starter
-
-## Links
+## Bootstrap
 
 - [kilork/actix-web-static-files](https://github.com/kilork/actix-web-static-files)
 - [actix_web_static_files - Rust](https://docs.rs/actix-web-static-files/3.0.5/actix_web_static_files/index.html?search=#use-case-3-packagejson---webpack-usage)
@@ -189,13 +205,13 @@ use example **Client Example using the W3C WebSocket API** from [link](https://w
 
 ```shell
 # terminal #1
-$ make run_server
+$ make start_server
 # terminal #2: use other outside frontend at port 8081 to use hor reload, this way we don't use embbedded version
-$ make run_client
+$ make start_client
 # minimal request
 $ curl -X GET http://127.0.0.1:8080/hello
 # open some frontend pages at http://127.0.0.1:8080|8081 and test websockets
-$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/echo | jq
+$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/ws-echo | jq
 ```
 
 ## Problems
@@ -208,3 +224,36 @@ $ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after 
 9 |     .service(web::resource("/ws/").route(web::get().to(websocket::ws_index)))
   |                                                        ^^^^^^^^^^^^^^^^^^^ the trait `Factory<_, _, _>` is not implemented for `fn(HttpRequest, actix_web::web::Payload, actix_web::web::Data<Addr<server::Server>>) -> impl std::future::Future {ws_index}`
 ```
+
+## the trait bound `WebSocketSession: actix::actor::Actor` is not satisfied
+
+- [The trait bound `Ws: actix::actor::Actor` is not satisfied - actix-web](https://www.gitmemory.com/issue/actix/actix-web/2121/808719620)
+
+- [The trait bound `Ws: actix::actor::Actor` is not satisfied · Issue #2121 · actix/actix-web](https://github.com/actix/actix-web/issues/2121)
+
+> above post has the answear: actix-web-actors 3.0 does not support actix 0.11. Use 0.10 instead
+
+occurs when move code to c3-updater, and we up a dependencie `actix = "0.10.0"` to actix = "0.12.0" version
+
+```shell
+error[E0277]: the trait bound `WebSocketSession: actix::actor::Actor` is not satisfied
+   --> src/websocket/mod.rs:87:74
+    |
+87  |   fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
+    |                                                                          ^^^^^^^^^^^^^^^^^^ the trait `actix::actor::Actor` is not implemented for `WebSocketSession`
+```
+
+- [Building a REST and Web Socket API with Actix and Rust](https://agmprojects.com/blog/building-a-rest-and-web-socket-api-with-actix.html)
+
+We have a compiler error, similar to the one we have on the websocket Server.
+
+```shell
+the trait bound `websocket::WebSocketSession: actix::actor::Actor` is not satisfied
+the trait `actix::actor::Actor` is not implemented for `websocket::WebSocketSession`
+```
+
+The fix for the Server was pretty straight forward, but this one is a little more involved.
+
+## Add WebSockets to Other Actix Web project like c3-updater
+
+wip

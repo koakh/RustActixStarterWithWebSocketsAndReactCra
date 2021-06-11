@@ -1,5 +1,5 @@
-mod post_input;
-mod post_response;
+mod post_ws_echo_request;
+mod post_ws_echo_response;
 
-pub use post_input::PostInput;
-pub use post_response::PostResponse;
+pub use post_ws_echo_request::PostWsEchoRequest;
+pub use post_ws_echo_response::PostWsEchoResponse;

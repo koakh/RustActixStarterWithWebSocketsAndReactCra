@@ -1,13 +1,13 @@
 SHELL := /bin/bash
+REACT_APP_PORT_WS := 8080
 REACT_APP_PORT := 8081
 
-run_server:
-	RUST_BACKTRACE=full \
-	BIND_ADDR=0.0.0.0:8080 \
+start_server:
+	@RUST_BACKTRACE=full \
+	BIND_ADDR=0.0.0.0:$(REACT_APP_PORT_WS) \
 	cargo run
 
-run_client:
-  # force to connect to es port on 8080
-	cd app && PORT=$(REACT_APP_PORT) REACT_APP_PORT=$(REACT_APP_PORT) REACT_APP_PORT_WS=8080 npm start
+start_client:
+	@cd app && PORT=$(REACT_APP_PORT) REACT_APP_PORT=$(REACT_APP_PORT) REACT_APP_PORT_WS=$(REACT_APP_PORT_WS) npm start
 
-.PHONY: run_server
+.PHONY: start_server

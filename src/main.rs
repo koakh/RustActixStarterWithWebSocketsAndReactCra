@@ -19,7 +19,7 @@ mod types;
 mod websocket;
 
 use app::{APP_NAME, DATE_FORMAT_STR, DEFAULT_BIND_ADDR};
-use dto::{PostInput, PostResponse};
+use dto::{PostWsEchoRequest, PostWsEchoResponse};
 use types::MessageToClientType;
 use websocket::{ws_index, MessageToClient, Server as WebServer};
 
@@ -37,11 +37,11 @@ async fn hello() -> impl Responder {
   HttpResponse::Ok().body("Hello world!")
 }
 
-#[post("/echo")]
-async fn echo(
-  msg: web::Json<PostInput>,
+#[post("/ws-echo")]
+async fn ws_echo(
+  msg: web::Json<PostWsEchoRequest>,
   websocket_srv: web::Data<Addr<WebServer>>,
-) -> HttpResponse /*Result<web::Json<PostResponse>, Box<dyn std::error::Error>>*/ {
+) -> HttpResponse /*Result<web::Json<PostWsEchoResponse>, Box<dyn std::error::Error>>*/ {
   // The type of `j` is `serde_json::Value`
   let json = json!({ "fingerprint": "0xF9BA143B95FF6D82", "date": current_formatted_date(DATE_FORMAT_STR), "uuid": Uuid::new_v4().to_string() });
   // let wsm: WebSocketMessage = serde_json::from_value(json).unwrap();
@@ -53,7 +53,7 @@ async fn echo(
     Ok(ok) => debug!("{:?}", ok),
     Err(e) => error!("{:?}", e),
   };
-  HttpResponse::Ok().json(PostResponse {
+  HttpResponse::Ok().json(PostWsEchoResponse {
     message: msg.message.clone(),
   })
 }
@@ -68,14 +68,16 @@ async fn main() -> std::io::Result<()> {
   env_logger::init();
   // environment variables
   let bind_addr = env::var("BIND_ADDR").unwrap_or(DEFAULT_BIND_ADDR.to_string());
+  // the trick for not lost connections sessions, is create ws_server outside of HttpServer::new, and use `move ||`
+  let ws_server = WebServer::new().start();
   // bootstrap actix server
   info!("start app: {}", APP_NAME);
 
-  // the trick for not lost connections sessions, is create ws_server outside of HttpServer::new, and use `move ||`
-  let ws_server = WebServer::new().start();
   HttpServer::new(move || {
+    // init actix_web_static_files generated
     let generated = generate();
     App::new()
+      // inject ws_server in context
       .data(ws_server.clone())
       // webSockets: TRICK /ws/ route must be before / and others to prevent problems
       .service(web::resource("/ws/").route(web::get().to(ws_index)))
@@ -83,7 +85,7 @@ async fn main() -> std::io::Result<()> {
       // .service(fs::Files::new("/", "static/").index_file("index.html"))
       // services
       .service(hello)
-      .service(echo)
+      .service(ws_echo)
       // static, leave / route to the end, else it overrides all others
       .service(
         actix_web_static_files::ResourceFiles::new("/", generated).resolve_not_found_to_root(),
