@@ -21,10 +21,18 @@
     - [Fix: the trait `Factory<_, _, _>` is not implemented for `fn(HttpRequest, actix_web::web::Payload, actix_web::web::Data<Addr<server::Server>>)](#fix-the-trait-factory_-_-_-is-not-implemented-for-fnhttprequest-actix_webwebpayload-actix_webwebdataaddrserverserver)
   - [the trait bound `WebSocketSession: actix::actor::Actor` is not satisfied](#the-trait-bound-websocketsession-actixactoractor-is-not-satisfied)
   - [Add WebSockets to Other Actix Web project like c3-updater](#add-websockets-to-other-actix-web-project-like-c3-updater)
+  - [Fix dependecy to use openssl crate `error: could not find system library 'openssl' required by the 'openssl-sys' crate`](#fix-dependecy-to-use-openssl-crate-error-could-not-find-system-library-openssl-required-by-the-openssl-sys-crate)
 
 ## Links
 
 - [How to create an API with Rust and Postgres - LogRocket Blog](https://blog.logrocket.com/create-a-backend-api-with-rust-and-postgres/)
+
+## install cargo-deb
+
+```shell
+# install carg-deb if not already installed
+$ cargo install cargo-deb
+```
 
 ## install cargo-watch
 
@@ -134,14 +142,14 @@ An example chat server with the ability to chat over a websocket or TCP connecti
 ```shell
 $ cd examples/websocket
 $ cargo run --bin websocket-server
-# Started http server: 127.0.0.1:8080
+# Started http server: 127.0.0.1:8443
 WS: Ok(Ping(b""))
 WS: Ok(Ping(b""))
 ```
 
 #### Web Client
 
-- [http://localhost:8080/](http://localhost:8080/)
+- [https://localhost:8443/](https://localhost:8443/)
 
 #### Rust client
 
@@ -177,7 +185,7 @@ actix-files = "0.5.0"
 $ cargo run
 ```
 
-test Web Client with [http://localhost:8080/](http://localhost:8080/)
+test Web Client with [https://localhost:8443/](https://localhost:8443/)
 
 ### Add WebSockets to React Project
 
@@ -209,9 +217,9 @@ $ make start_server
 # terminal #2: use other outside frontend at port 8081 to use hor reload, this way we don't use embbedded version
 $ make start_client
 # minimal request
-$ curl -X GET http://127.0.0.1:8080/hello
-# open some frontend pages at http://127.0.0.1:8080|8081 and test websockets
-$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/ws-echo | jq
+$ curl -X GET https://localhost:8443/hello
+# open some frontend pages at https://localhost:8443|8081 and test websockets
+$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' https://localhost:8443/ws-echo | jq
 ```
 
 ## Problems
@@ -257,3 +265,29 @@ The fix for the Server was pretty straight forward, but this one is a little mor
 ## Add WebSockets to Other Actix Web project like c3-updater
 
 wip
+
+## Fix dependecy to use openssl crate `error: could not find system library 'openssl' required by the 'openssl-sys' crate`
+
+```shell
+$ cargo build
+
+run pkg_config fail: "`\"pkg-config\" \"--libs\" \"--cflags\" \"openssl\"` did not exit successfully: exit status: 1\nerror: could not find system library 'openssl' required by the 'openssl-sys' crate\n\n--- stderr\nPackage openssl was not found in the pkg-config search path.\nPerhaps you should add the directory containing `openssl.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'openssl', required by 'virtual:world', not found\n"
+```
+
+- [Getting Title at 36:00](https://docs.rs/openssl/0.10.16/openssl/)
+
+```shell
+# macOS
+$ brew install openssl@1.1
+
+# Arch Linux
+$ sudo pacman -S pkg-config openssl
+
+# Debian and Ubuntu
+$ sudo apt-get install pkg-config libssl-dev
+
+# Fedora
+$ sudo dnf install pkg-config openssl-devel
+# OpenSuse
+$ sudo zypper in openssl-devel
+```
