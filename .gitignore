@@ -4,3 +4,4 @@ app/build/
 app/node_modules/
 appjs/build/
 appjs/node_modules/
+.vscode/chrome

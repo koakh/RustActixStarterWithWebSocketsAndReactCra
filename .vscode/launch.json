@@ -6,6 +6,12 @@
   "configurations": [
     {
       "type": "lldb",
+      "request": "attach",
+      "name": "Attach to executable 'rust-react-starter'",
+      "program": "${workspaceFolder}/target/debug/rust-react-starter",
+    },    
+    {
+      "type": "lldb",
       "request": "launch",
       "name": "Debug executable 'rust-react-starter'",
       "cargo": {
@@ -41,12 +47,33 @@
       "args": [],
       "cwd": "${workspaceFolder}"
     },
+    // {
+    //   "name": "Attach to Chrome",
+    //   "port": 9222,
+    //   "request": "attach",
+    //   "type": "pwa-chrome",
+    //   "webRoot": "${workspaceFolder}/app"
+    // }
     {
-      "name": "Attach to Chrome",
-      "port": 9222,
-      "request": "attach",
+      "name": "Debug React Frontend",
       "type": "pwa-chrome",
-      "webRoot": "${workspaceFolder}/app"
-    }
+      "request": "launch",
+      // trick is using localhost here
+      "url": "http://localhost:8081",
+      "webRoot": "${workspaceRoot}/app",
+      "userDataDir": "${workspaceRoot}/.vscode/chrome",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/app/src/*"
+      },
+      "cwd": "${webRoot}/app/src/",
+      "linux": {
+        // require bellow fix in settings.json to work with manjaro chromium debugger
+        // "debug.javascript.usePreview": false
+        "runtimeExecutable": "/usr/bin/chromium"
+      },
+      "env": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": 0
+      }
+    }    
   ]
 }
