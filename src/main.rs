@@ -12,16 +12,19 @@ use std::env;
 use std::time::SystemTime;
 use time::OffsetDateTime;
 use uuid::Uuid;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 mod app;
 mod dto;
 mod types;
 mod websocket;
+mod util;
 
-use app::{APP_NAME, DATE_FORMAT_STR, DEFAULT_BIND_ADDR};
+use app::{APP_NAME, CONFIG_PATH_SSL, DATE_FORMAT_STR, DEFAULT_HTTPS_SERVER_URI};
 use dto::{PostWsEchoRequest, PostWsEchoResponse};
 use types::MessageToClientType;
 use websocket::{ws_index, MessageToClient, Server as WebServer};
+use util::out_message;
 
 // for static files
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));
@@ -38,10 +41,7 @@ async fn hello() -> impl Responder {
 }
 
 #[post("/ws-echo")]
-async fn ws_echo(
-  msg: web::Json<PostWsEchoRequest>,
-  websocket_srv: web::Data<Addr<WebServer>>,
-) -> HttpResponse /*Result<web::Json<PostWsEchoResponse>, Box<dyn std::error::Error>>*/ {
+async fn ws_echo(msg: web::Json<PostWsEchoRequest>, websocket_srv: web::Data<Addr<WebServer>>) -> HttpResponse /*Result<web::Json<PostWsEchoResponse>, Box<dyn std::error::Error>>*/ {
   // The type of `j` is `serde_json::Value`
   let json = json!({ "fingerprint": "0xF9BA143B95FF6D82", "date": current_formatted_date(DATE_FORMAT_STR), "uuid": Uuid::new_v4().to_string() });
   // let wsm: WebSocketMessage = serde_json::from_value(json).unwrap();
@@ -53,21 +53,25 @@ async fn ws_echo(
     Ok(ok) => debug!("{:?}", ok),
     Err(e) => error!("{:?}", e),
   };
-  HttpResponse::Ok().json(PostWsEchoResponse {
-    message: msg.message.clone(),
-  })
+  HttpResponse::Ok().json(PostWsEchoResponse { message: msg.message.clone() })
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
   dotenv().ok();
-  std::env::set_var(
-    "RUST_LOG",
-    "actix_server=info,actix_web=info,debug,warn,error",
-  );
+  std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info,debug,warn,error");
   env_logger::init();
   // environment variables
-  let bind_addr = env::var("BIND_ADDR").unwrap_or(DEFAULT_BIND_ADDR.to_string());
+  // let bind_addr = env::var("BIND_ADDR").unwrap_or(DEFAULT_HTTP_SERVER_URI.to_string());
+  // environment variables
+  let http_server_uri = env::var("HTTP_SERVER_URI").unwrap_or(DEFAULT_HTTPS_SERVER_URI.to_string());
+  out_message(format!("server start at: '{}'", http_server_uri), 0);
+
+  // config https ssl keys
+  let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+  builder.set_private_key_file(format!("{}/key.pem", CONFIG_PATH_SSL), SslFiletype::PEM).unwrap();
+  builder.set_certificate_chain_file(format!("{}/cert.pem", CONFIG_PATH_SSL)).unwrap();
+
   // the trick for not lost connections sessions, is create ws_server outside of HttpServer::new, and use `move ||`
   let ws_server = WebServer::new().start();
   // bootstrap actix server
@@ -87,11 +91,11 @@ async fn main() -> std::io::Result<()> {
       .service(hello)
       .service(ws_echo)
       // static, leave / route to the end, else it overrides all others
-      .service(
-        actix_web_static_files::ResourceFiles::new("/", generated).resolve_not_found_to_root(),
-      )
+      .service(actix_web_static_files::ResourceFiles::new("/", generated).resolve_not_found_to_root())
   })
-  .bind(bind_addr)?
+  // .bind(bind_addr)?
+  // .bind(http_server_uri)?
+  .bind_openssl(http_server_uri, builder)?
   .run()
   .await
 }

@@ -1,0 +1,34 @@
+[Unit]
+Description=Critical Links c3-updater
+
+[Service]
+Type=simple
+ExecStart=/usr/share/c3-updater/c3-updater start-server
+WorkingDirectory=/usr/share/c3-updater
+Restart=always
+# ExecStartPre=/bin/sleep 5
+
+# Only kill the main process, do not kill the /usr/lib/backend/* programs.
+KillMode=process
+
+#User=nobody
+#Group=nogroup
+
+# Environment variables:
+# override defaults
+# Environment=LOG_DEFAULT_LEVEL=DEBUG
+# Environment=LOGFILE_DEFAULT_LEVEL=DEBUG
+
+# Allow many incoming connections
+LimitNOFILE=infinity
+
+# Allow core dumps for debugging
+LimitCORE=infinity
+
+# if enable output will be redirected to syslog
+# StandardInput=null
+# StandardOutput=syslog
+# StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

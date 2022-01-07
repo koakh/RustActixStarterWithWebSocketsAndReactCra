@@ -1,0 +1,24 @@
+// dev
+@host = localhost
+@port = 8443
+@baseUri = https://{{host}}:{{port}}
+@uri = {{baseUri}}
+
+@contentType = application/json
+@apiKey = H8Z41EQVuePtZSOMMwfoZu8couRrhaGiDlWnkuucVEpHsPpnGOE3b8GRAjzKM6vF
+
+### hello
+// @name hello
+
+GET {{uri}}/hello HTTP/1.1
+
+### ws-echo
+// @name ws-echo
+
+POST {{uri}}/ws-echo HTTP/1.1
+Content-Type: {{contentType}}
+Authorization: Bearer {{apiKey}}
+
+{
+  "message": "hello after clear...."
+}

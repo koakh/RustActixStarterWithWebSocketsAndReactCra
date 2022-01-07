@@ -11,10 +11,10 @@ or follow this quick notes
 $ make start_server
 
 # minimal request
-$ curl -X GET http://127.0.0.1:8080/hello
+$ curl -X GET https://localhost:8443/hello
 
-# open some frontend pages with console open at http://127.0.0.1:8080|8081 and test websockets
-$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/ws-echo | jq
+# open some frontend pages with console open at https://localhost:8443|8081 and test websockets
+$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' https://localhost:8443/ws-echo | jq
 ```
 
 ## Debug Projects
@@ -51,5 +51,5 @@ api just launch F5 `"Debug React Frontend"`
 
 ```shell
 # fire request
-$ curl -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' http://127.0.0.1:8080/ws-echo | jq
+$ curl -k -X POST -H "Content-Type: application/json" -d '{"message": "hello after clear...."}' https://localhost:8443/ws-echo | jq
 ```

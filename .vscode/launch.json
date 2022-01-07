@@ -59,7 +59,7 @@
       "type": "pwa-chrome",
       "request": "launch",
       // trick is using localhost here
-      "url": "http://localhost:8081",
+      "url": "https://localhost:8444",
       "webRoot": "${workspaceRoot}/app",
       "userDataDir": "${workspaceRoot}/.vscode/chrome",
       "sourceMapPathOverrides": {
