@@ -3,31 +3,43 @@ extern crate log;
 
 use actix::prelude::*;
 use actix::Addr;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
 use actix_web_static_files;
 use dotenv::dotenv;
 use log::{debug, error, info};
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::json;
+use std::cell::Cell;
 use std::env;
+// use std::sync::Arc;
+// use std::sync::atomic::{AtomicUsize, Ordering};
+// use std::sync::Mutex;
+use std::sync::{
+  atomic::{AtomicUsize, Ordering},
+  Arc, Mutex,
+};
 use std::time::SystemTime;
 use time::OffsetDateTime;
 use uuid::Uuid;
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 mod app;
 mod dto;
 mod types;
-mod websocket;
 mod util;
+mod websocket;
 
 use app::{APP_NAME, CONFIG_PATH_SSL, DATE_FORMAT_STR, DEFAULT_HTTPS_SERVER_URI};
 use dto::{PostWsEchoRequest, PostWsEchoResponse};
 use types::MessageToClientType;
-use websocket::{ws_index, MessageToClient, Server as WebServer};
 use util::out_message;
+use websocket::{ws_index, MessageToClient, Server as WebServer};
+
+use crate::app::{AppState, AppStateGlobal, AppStateResponse, PostStateRequest};
 
 // for static files
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));
+
+static SERVER_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 pub fn current_formatted_date(date_format_str: &str) -> String {
   let dt: OffsetDateTime = SystemTime::now().into();
@@ -38,6 +50,33 @@ pub fn current_formatted_date(date_format_str: &str) -> String {
 async fn hello() -> impl Responder {
   // WebSocketSession::hb();
   HttpResponse::Ok().body("Hello world!")
+}
+
+#[post("/state")]
+async fn state(msg: web::Json<PostStateRequest>, data: web::Data<AppState>, app_data: web::Data<AppStateGlobal>) -> Result<web::Json<AppStateResponse>> {
+  // global get counter's MutexGuard
+  let mut counter = app_data.counter.lock().unwrap();
+  // access counter inside MutexGuard
+  *counter += 1;
+
+  if !msg.message.eq("") {
+    let mut message = app_data.message.lock().unwrap();
+    // access filter inside MutexGuard
+    *message = msg.message.clone();
+  }
+
+  // workers state
+  let request_count = data.request_count.get() + 1;
+  data.request_count.set(request_count);
+
+  debug!("{:?}", msg);
+
+  Ok(web::Json(AppStateResponse {
+    server_id: data.server_id,
+    request_count,
+    counter: *counter,
+    message: String::from(&msg.message),
+  }))
 }
 
 #[post("/ws-echo")]
@@ -74,6 +113,13 @@ async fn main() -> std::io::Result<()> {
 
   // the trick for not lost connections sessions, is create ws_server outside of HttpServer::new, and use `move ||`
   let ws_server = WebServer::new().start();
+
+  // init global data
+  let data = web::Data::new(AppStateGlobal {
+    counter: Mutex::new(0),
+    message: Arc::new(Mutex::new(String::from(""))),
+  });
+
   // bootstrap actix server
   info!("start app: {}", APP_NAME);
 
@@ -81,6 +127,14 @@ async fn main() -> std::io::Result<()> {
     // init actix_web_static_files generated
     let generated = generate();
     App::new()
+      // worker/thread data
+      .data(AppState {
+        server_id: SERVER_COUNTER.fetch_add(1, Ordering::SeqCst),
+        request_count: Cell::new(0),
+        // filter,
+      })
+      // global data
+      .app_data(data.clone())
       // inject ws_server in context
       .data(ws_server.clone())
       // webSockets: TRICK /ws/ route must be before / and others to prevent problems
@@ -90,6 +144,7 @@ async fn main() -> std::io::Result<()> {
       // services
       .service(hello)
       .service(ws_echo)
+      .service(state)
       // static, leave / route to the end, else it overrides all others
       .service(actix_web_static_files::ResourceFiles::new("/", generated).resolve_not_found_to_root())
   })
